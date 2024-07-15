@@ -17,7 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -35,4 +37,4 @@ jobs:
         run: pnpm install
 
       - name: Run changeset status
-        run: pnpm changeset status --since origin/main
+        run: git fetch origin main && pnpm changeset status --since origin/main
