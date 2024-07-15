@@ -15,7 +15,7 @@ class Tester {
     this.linter = new TSESLint.Linter({
       cwd: this.root,
     });
-    this.program = parser.createProgram("./tsconfig.json", root);
+    this.program = parser.createProgram(`${this.root}/tsconfig.json`);
     this.linter.defineParser("@typescript-eslint/parser", parser);
     this.linter.defineRule("function-with-test/require-test", requireTest);
   }
@@ -43,13 +43,12 @@ class Tester {
       },
       {
         filename,
-      }
+      },
     );
   }
 }
 
 export const getTester = (rootPath?: string) => {
   const root = path.resolve(__dirname, rootPath ?? "__tests__/fixtures");
-  console.log(root);
   return new Tester(root);
 };

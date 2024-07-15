@@ -15,7 +15,9 @@
     "test:design-token": "pnpm --filter \"@takurinton/eslint-plugin-design-tokens\" test",
     "test:function-with-test": "pnpm --filter \"@takurinton/eslint-plugin-function-with-test\" test",
     "test:zod": "pnpm --filter \"@takurinton/eslint-plugin-zod\" test",
-    "lint": "eslint --ext .ts,.tsx ."
+    "lint": "eslint --ext .ts,.tsx .",
+    "ci:version": "changeset version",
+    "ci:publish": "changeset publish"
   },
   "author": "takurinton",
   "license": "MIT",
