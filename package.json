@@ -1,6 +1,6 @@
 {
   "name": "@takurinton/eslint-plugins",
-  "version": "0.0.9",
+  "version": "0.0.0",
   "description": "",
   "scripts": {
     "test": "pnpm test:vars-name && pnpm test:define-component && pnpm test:design-token && pnpm test:function-with-test && pnpm test:zod",

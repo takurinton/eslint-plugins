@@ -18,5 +18,8 @@
   },
   "author": "takurinton",
   "license": "MIT",
-  "description": ""
+  "description": "",
+  "publishConfig": {
+    "access": "public"
+  }
 }
