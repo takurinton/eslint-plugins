@@ -1,0 +1,38 @@
+{
+  "name": "@takurinton/eslint-plugins",
+  "version": "0.0.9",
+  "description": "",
+  "scripts": {
+    "test": "pnpm test:vars-name && pnpm test:define-component && pnpm test:design-token",
+    "build": "pnpm build:vars-name && pnpm build:define-component && pnpm build:design-token",
+    "build:vars-name": "pnpm --filter \"@takurinton/eslint-plugin-vars-name\" build",
+    "build:define-component": "pnpm --filter \"@takurinton/eslint-plugin-only-define-react-component\" build",
+    "build:design-token": "pnpm --filter \"@takurinton/eslint-plugin-design-tokens\" build",
+    "test:vars-name": "pnpm --filter \"@takurinton/eslint-plugin-vars-name\" test",
+    "test:define-component": "pnpm --filter \"@takurinton/eslint-plugin-only-define-react-component\" test",
+    "test:design-token": "pnpm --filter \"@takurinton/eslint-plugin-design-tokens\" test",
+    "lint": "eslint --ext .ts,.tsx ."
+  },
+  "author": "takurinton",
+  "license": "MIT",
+  "dependencies": {
+    "@typescript-eslint/utils": "6.20.0"
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "0.4.8",
+    "@changesets/cli": "2.26.2",
+    "@types/eslint": "8.56.2",
+    "@types/node": "20.11.16",
+    "@typescript-eslint/eslint-plugin": "6.20.0",
+    "@typescript-eslint/types": "6.20.0",
+    "@typescript-eslint/parser": "6.20.0",
+    "@typescript-eslint/rule-tester": "6.20.0",
+    "eslint": "8.56.0",
+    "prettier": "3.0.3",
+    "typescript": "5.3.3",
+    "vitest": "1.2.2"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

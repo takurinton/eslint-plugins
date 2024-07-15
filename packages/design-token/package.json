@@ -1,0 +1,28 @@
+{
+  "devDependencies": {
+    "@types/styled-system": "5.1.5"
+  },
+  "dependencies": {
+    "ignore": "5.3.1",
+    "styled-system": "5.1.5"
+  },
+  "name": "@takurinton/eslint-plugin-design-tokens",
+  "version": "0.0.8",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/__tests__"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/takurinton/eslint-plugin-use-design-token.git"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "lint": "eslint --ext .ts,.tsx .",
+    "test": "VITE_CJS_IGNORE_WARNING=true vitest"
+  },
+  "author": "takurinton",
+  "license": "MIT",
+  "description": ""
+}
