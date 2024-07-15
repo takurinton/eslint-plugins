@@ -1,0 +1,23 @@
+{
+  "devDependencies": {},
+  "name": "@takurinton/eslint-plugin-function-with-test",
+  "version": "0.0.2",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/__tests__",
+    "!dist/testRunner.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/takurinton/eslint-plugin-function-with-test.git"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "lint": "eslint --ext .ts,.tsx .",
+    "test": "vitest"
+  },
+  "author": "takurinton",
+  "license": "MIT",
+  "description": ""
+}

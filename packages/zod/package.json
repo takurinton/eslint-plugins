@@ -1,0 +1,24 @@
+{
+  "devDependencies": {},
+  "dependencies": {
+    "@typescript-eslint/experimental-utils": "4.15.0"
+  },
+  "name": "@takurinton/eslint-plugin-zod",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/__tests__"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/takurinton/eslint-plugin-zod.git"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "test": "vitest"
+  },
+  "author": "takurinton",
+  "license": "MIT",
+  "description": ""
+}
