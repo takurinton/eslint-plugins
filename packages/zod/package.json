@@ -1,8 +1,5 @@
 {
   "devDependencies": {},
-  "dependencies": {
-    "@typescript-eslint/experimental-utils": "4.15.0"
-  },
   "name": "@takurinton/eslint-plugin-zod",
   "version": "0.0.1",
   "main": "dist/index.js",
