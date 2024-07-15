@@ -1,9 +1,15 @@
-name: release
+name: check changeset
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "packages/**"
+      - ".github/workflows/check-changeset.yaml"
 
 jobs:
   release:
@@ -28,10 +34,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Create Release Pull Request
-        uses: changesets/action@v1
-        with:
-          publish: pnpm ci:publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Run changeset status
+        run: pnpm changeset status --since origin/main
