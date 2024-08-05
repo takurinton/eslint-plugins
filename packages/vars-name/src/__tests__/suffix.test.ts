@@ -112,6 +112,18 @@ ruleTester.run("vars-name/suffix", suffix, {
         },
       ],
     },
+    // fixable(forwardRef)
+    {
+      filename: "Component.tsx",
+      code: "const Component = forwardRef(function Component({ name: foo }: { name: string }) { return <div>{foo}</div>; })",
+      output:
+        "const Component = forwardRef(function Component({ name: nameProp }: { name: string }) { return <div>{foo}</div>; })",
+      errors: [
+        {
+          messageId: "suffix",
+        },
+      ],
+    },
     // デフォルト値を入れている場合(arrow function)
     {
       filename: "Component.tsx",
