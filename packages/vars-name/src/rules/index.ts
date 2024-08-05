@@ -107,7 +107,7 @@ export const suffix: TSESLint.RuleModule<MessageId, []> = {
                           fix: (fixer) => {
                             return fixer.replaceText(
                               value.left,
-                              `${key.name}Prop`
+                              `${key.name}Prop`,
                             );
                           },
                         });
@@ -154,7 +154,7 @@ export const suffix: TSESLint.RuleModule<MessageId, []> = {
                           fix: (fixer) => {
                             return fixer.replaceText(
                               value.left,
-                              `${key.name}Prop`
+                              `${key.name}Prop`,
                             );
                           },
                         });
@@ -166,6 +166,64 @@ export const suffix: TSESLint.RuleModule<MessageId, []> = {
             });
           }
         });
+      },
+      // forwardRef の場合
+      CallExpression(node) {
+        if (node.callee.type === "Identifier") {
+          if (node.callee.name === "forwardRef") {
+            const [component] = node.arguments;
+            if (component.type === "FunctionExpression") {
+              component.params.forEach((param) => {
+                if (param.type === "ObjectPattern") {
+                  param.properties.forEach((property) => {
+                    if (property.type === "Property") {
+                      const { key, value } = property;
+                      if (key.type === "Identifier") {
+                        if (value.type === "Identifier") {
+                          if (key.name === value.name) {
+                            return;
+                          }
+                          if (`${key.name}Prop` !== value.name) {
+                            context.report({
+                              node: value,
+                              messageId: "suffix",
+                              // fixer書いてるけど、元の prop name が使われてる箇所までは直せない
+                              fix: (fixer) => {
+                                return fixer.replaceText(
+                                  value,
+                                  `${key.name}Prop`,
+                                );
+                              },
+                            });
+                          }
+                        } else if (value.type === "AssignmentPattern") {
+                          if (value.left.type === "Identifier") {
+                            if (key.name === value.left.name) {
+                              return;
+                            }
+                            if (`${key.name}Prop` !== value.left.name) {
+                              context.report({
+                                node: value.left,
+                                messageId: "suffix",
+                                // fixer書いてるけど、元の prop name が使われてる箇所までは直せない
+                                fix: (fixer) => {
+                                  return fixer.replaceText(
+                                    value.left,
+                                    `${key.name}Prop`,
+                                  );
+                                },
+                              });
+                            }
+                          }
+                        }
+                      }
+                    }
+                  });
+                }
+              });
+            }
+          }
+        }
       },
     };
   },
