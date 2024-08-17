@@ -1,0 +1,217 @@
+import { TSESLint } from "@typescript-eslint/utils";
+import { MessageId, Options } from "./types";
+import { messages } from "./messages";
+import { getProperties, haveSameKeys } from "./utils";
+
+/**
+ * 言語定数に同じkeyが存在しているかをチェックする
+ * @memo 今のところ components しかないので、components の下のソースコードが同じかどうかを見る
+ */
+export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
+  meta: {
+    type: "problem",
+    docs: {
+      description: "i18n",
+      recommended: "recommended",
+      url: "",
+    },
+    schema: [
+      {
+        type: "object",
+        properties: {
+          languageConstantVariables: {
+            type: "array",
+            items: {
+              type: "string",
+            },
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
+    messages,
+  },
+  defaultOptions: [],
+  create(context) {
+    const filename = context.filename ?? context.getFilename() ?? "";
+    //
+    if (filename === "" || !filename.includes(LOCALE_FILE_NAME)) {
+      return {};
+    }
+
+    const variableNames = context.options[0]?.languageConstantVariables ?? [];
+    const componentsMap = new Map<string, unknown>();
+
+    return {
+      VariableDeclaration(node) {
+        if (node.declarations.length === 0) {
+          return;
+        }
+
+        // variableName と同じ名前の変数を取得
+        if (node.declarations[0].id.type === "Identifier") {
+          const variableName = node.declarations[0].id.name;
+          if (variableNames.includes(variableName)) {
+            if (node.declarations[0].init?.type === "ObjectExpression") {
+              const componentsKeyNode =
+                node.declarations[0].init.properties.find(
+                  (property) =>
+                    property.type === "Property" &&
+                    property.key.type === "Identifier" &&
+                    property.key.name === "components",
+                );
+
+              if (
+                componentsKeyNode == null ||
+                componentsKeyNode.type !== "Property"
+              ) {
+                return;
+              }
+
+              if (componentsKeyNode.value.type === "ObjectExpression") {
+                const properties = getProperties(componentsKeyNode.value);
+                componentsMap.set(variableName, properties);
+              }
+            }
+            if (
+              node.declarations[0].init?.type === "TSAsExpression" &&
+              node.declarations[0].init.expression.type === "ObjectExpression"
+            ) {
+              const componentsKeyNode =
+                node.declarations[0].init.expression.properties.find(
+                  (property) =>
+                    property.type === "Property" &&
+                    property.key.type === "Identifier" &&
+                    property.key.name === "components",
+                );
+
+              if (
+                componentsKeyNode == null ||
+                componentsKeyNode.type !== "Property"
+              ) {
+                return;
+              }
+
+              if (componentsKeyNode.value.type === "ObjectExpression") {
+                const properties = getProperties(componentsKeyNode.value);
+                componentsMap.set(variableName, properties);
+              }
+            }
+          }
+        }
+      },
+      "Program:exit"() {
+        const componentsKeys = Array.from(componentsMap.keys());
+        if (componentsKeys.length !== variableNames.length) {
+          return;
+        }
+
+        if (!haveSameKeys(componentsMap)) {
+          context.report({
+            loc: { line: 1, column: 0 },
+            messageId: "missing_key_value",
+          });
+        }
+      },
+    };
+  },
+};
+
+// memo: ここは変わるかもしれない
+const LOCALE_FILE_NAME = "i18n/constants/locale";
+
+/**
+ * 言語定数を定義するためのルール
+ * languageConstantVariables に指定された定数名を定義しているかをチェックする
+ * 定数はオブジェクトで、少なくともcomponentsというkeyを持つ必要がある
+ */
+export const defineLanguageConstantVariables: TSESLint.RuleModule<
+  MessageId,
+  Options
+> = {
+  meta: {
+    type: "problem",
+    docs: {
+      description: "i18n",
+      recommended: "recommended",
+      url: "",
+    },
+    schema: [
+      {
+        type: "object",
+        properties: {
+          languageConstantVariables: {
+            type: "array",
+            items: {
+              type: "string",
+            },
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
+    messages,
+  },
+  defaultOptions: [],
+  create(context) {
+    const filename = context.filename ?? context.getFilename() ?? "";
+    //
+    if (filename === "" || !filename.includes(LOCALE_FILE_NAME)) {
+      return {};
+    }
+
+    const variableNames = context.options[0]?.languageConstantVariables ?? [];
+    const definedVairableNames: { hasComponentsKey: boolean }[] = [];
+
+    return {
+      VariableDeclaration(node) {
+        if (node.declarations.length === 0) {
+          return;
+        }
+
+        // 変数名を取得、型ガードを添えて
+        if (node.declarations[0].id.type === "Identifier") {
+          const variableName = node.declarations[0].id.name;
+          if (variableNames.includes(variableName)) {
+            if (node.declarations[0].init?.type === "ObjectExpression") {
+              const hasComponentsKey =
+                node.declarations[0].init.properties.some(
+                  (property) =>
+                    property.type === "Property" &&
+                    property.key.type === "Identifier" &&
+                    property.key.name === "components",
+                );
+              definedVairableNames.push({ hasComponentsKey });
+            } else {
+              definedVairableNames.push({ hasComponentsKey: false });
+            }
+          }
+        }
+      },
+      "Program:exit"() {
+        // エラーはひとまず1行目に出す
+        for (const index in variableNames) {
+          const variableName = variableNames[index];
+          const definedVairableName = definedVairableNames[index];
+          if (!definedVairableName) {
+            context.report({
+              loc: { line: 1, column: 0 },
+              messageId: "missing_language",
+              data: {
+                lang: variableName,
+              },
+            });
+          } else if (!definedVairableName.hasComponentsKey) {
+            context.report({
+              loc: { line: 1, column: 0 },
+              messageId: "missgin_components_key",
+              data: {
+                lang: variableName,
+              },
+            });
+          }
+        }
+      },
+    };
+  },
+};

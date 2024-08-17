@@ -10,11 +10,13 @@
     "build:design-token": "pnpm --filter \"@takurinton/eslint-plugin-design-tokens\" build",
     "build:function-with-test": "pnpm --filter \"@takurinton/eslint-plugin-function-with-test\" build",
     "build:zod": "pnpm --filter \"@takurinton/eslint-plugin-zod\" build",
+    "build:i18n": "pnpm --filter \"@takurinton/eslint-plugin-i18n\" build",
     "test:vars-name": "pnpm --filter \"@takurinton/eslint-plugin-vars-name\" test",
     "test:define-component": "pnpm --filter \"@takurinton/eslint-plugin-only-define-react-component\" test",
     "test:design-token": "pnpm --filter \"@takurinton/eslint-plugin-design-tokens\" test",
     "test:function-with-test": "pnpm --filter \"@takurinton/eslint-plugin-function-with-test\" test",
     "test:zod": "pnpm --filter \"@takurinton/eslint-plugin-zod\" test",
+    "test:i18n": "pnpm --filter \"@takurinton/eslint-plugin-i18n\" test",
     "lint": "eslint --ext .ts,.tsx .",
     "ci:version": "changeset version",
     "ci:publish": "changeset publish"
