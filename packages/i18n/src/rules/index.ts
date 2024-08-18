@@ -155,13 +155,15 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
   defaultOptions: [],
   create(context) {
     const filename = context.filename ?? context.getFilename() ?? "";
-    //
     if (filename === "" || !filename.includes(LOCALE_FILE_NAME)) {
       return {};
     }
 
     const variableNames = context.options[0]?.languageConstantVariables ?? [];
-    const definedVairableNames: { hasComponentsKey: boolean }[] = [];
+    const definedVairableNames: {
+      variableName: (typeof variableNames)[number];
+      hasComponentsKey: boolean;
+    }[] = [];
 
     return {
       VariableDeclaration(node) {
@@ -169,7 +171,6 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
           return;
         }
 
-        // 変数名を取得、型ガードを添えて
         if (node.declarations[0].id.type === "Identifier") {
           const variableName = node.declarations[0].id.name;
           if (variableNames.includes(variableName)) {
@@ -181,27 +182,55 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
                     property.key.type === "Identifier" &&
                     property.key.name === "components",
                 );
-              definedVairableNames.push({ hasComponentsKey });
-            } else {
-              definedVairableNames.push({ hasComponentsKey: false });
+              definedVairableNames.push({ variableName, hasComponentsKey });
+            }
+          }
+        }
+        if (node.declarations[0].init?.type === "TSAsExpression") {
+          if (node.declarations[0].id.type === "Identifier") {
+            const variableName = node.declarations[0].id.name;
+            if (variableNames.includes(variableName)) {
+              if (
+                node.declarations[0].init?.expression.type ===
+                "ObjectExpression"
+              ) {
+                const hasComponentsKey =
+                  node.declarations[0].init.expression.properties.some(
+                    (property) =>
+                      property.type === "Property" &&
+                      property.key.type === "Identifier" &&
+                      property.key.name === "components",
+                  );
+                definedVairableNames.push({ variableName, hasComponentsKey });
+              }
             }
           }
         }
       },
       "Program:exit"() {
         // エラーはひとまず1行目に出す
-        for (const index in variableNames) {
-          const variableName = variableNames[index];
-          const definedVairableName = definedVairableNames[index];
-          if (!definedVairableName) {
+        const definedVariableNameKeys = definedVairableNames.map(
+          (variableName) => variableName.variableName,
+        );
+
+        if (definedVariableNameKeys.length !== variableNames.length) {
+          const missingVariableNames = variableNames.filter(
+            (variableName) => !definedVariableNameKeys.includes(variableName),
+          );
+          for (const missingVariableName of missingVariableNames) {
             context.report({
               loc: { line: 1, column: 0 },
               messageId: "missing_language",
               data: {
-                lang: variableName,
+                lang: missingVariableName,
               },
             });
-          } else if (!definedVairableName.hasComponentsKey) {
+          }
+        }
+
+        for (const definedVairableName of definedVairableNames) {
+          const { variableName, hasComponentsKey } = definedVairableName;
+          if (!hasComponentsKey) {
             context.report({
               loc: { line: 1, column: 0 },
               messageId: "missgin_components_key",

@@ -148,6 +148,45 @@ ruleTester.run("i18n/constants", constantsRule, {
         },
       ],
     },
+    {
+      filename: "i18n/constants/locale.ts",
+      code: `
+        export const en = {
+          components: {
+            Button: {
+              defaultProps: {
+                key: "value",
+              },
+            },
+          },
+        } as const
+
+        export const ja = {
+          components: {
+            Button: {
+              defaultProps: {
+                key: "value",
+              },
+            },
+            Input: {
+              defaultProps: {},
+            },
+          },
+        } as const`,
+      options: [
+        {
+          languageConstantVariables: ["ja", "en"],
+        },
+      ],
+      errors: [
+        {
+          messageId: "missing_key_value",
+          data: {
+            lang: "ja",
+          },
+        },
+      ],
+    },
   ],
 });
 
@@ -164,6 +203,30 @@ ruleTester.run(
           };
           export const en = {
             components: {},
+          };
+        `,
+        options: [
+          {
+            languageConstantVariables: ["ja", "en"],
+          },
+        ],
+      },
+      {
+        filename: "i18n/constants/locale.ts",
+        code: `
+          export const ja = {
+            components: {
+              Button: {
+                defaultProps: {},
+              },
+            },
+          };
+          export const en = {
+            components: {
+              Button: {
+                defaultProps: {},
+              },
+            },
           };
         `,
         options: [
