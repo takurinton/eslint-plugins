@@ -1,7 +1,7 @@
 import { TSESLint } from "@typescript-eslint/utils";
 import { MessageId, Options } from "./types";
 import { messages } from "./messages";
-import { getProperties, haveSameKeys } from "./utils";
+import { getProperties, findMismatchedPropertiesKeys } from "./utils";
 
 const LOCALE_FILE_NAME = "i18n/constants/locale";
 
@@ -122,15 +122,21 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
           return;
         }
 
-        if (!haveSameKeys(componentsMap)) {
-          context.report({
-            // 基本的にnullになることはない
-            loc: componentsMap.get(componentsKeys[0])?.loc ?? {
-              line: 1,
-              column: 0,
-            },
-            messageId: "missing_key_value",
-          });
+        const missmatchedKeys = findMismatchedPropertiesKeys(componentsMap);
+
+        if (missmatchedKeys !== null) {
+          for (const missmatchedKey of missmatchedKeys) {
+            context.report({
+              loc: componentsMap.get(componentsKeys[0])?.loc ?? {
+                line: 1,
+                column: 0,
+              },
+              messageId: "missing_key_value",
+              data: {
+                key: missmatchedKey,
+              },
+            });
+          }
         }
       },
     };

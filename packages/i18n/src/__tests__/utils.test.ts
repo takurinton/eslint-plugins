@@ -2,7 +2,7 @@
 // @ts-nocheck
 import { describe, it, expect } from "vitest";
 import { TSESTree } from "@typescript-eslint/utils";
-import { getProperties, haveSameKeys } from "../rules/utils";
+import { getProperties, findMismatchedPropertiesKeys } from "../rules/utils";
 import { AST_NODE_TYPES } from "@typescript-eslint/utils";
 
 describe("getProperties", () => {
@@ -99,61 +99,61 @@ describe("getProperties", () => {
   });
 });
 
-describe("haveSameKeys", () => {
+describe("findMismatchedPropertiesKeys", () => {
   it("should return true for maps with identical nested keys", () => {
     const map = new Map<string, unknown>([
-      ["obj1", { a: 1, b: { c: 2, d: 3 } }],
-      ["obj2", { a: 10, b: { c: 20, d: 30 } }],
+      ["obj1", { properties: { a: 1, b: { c: 2, d: 3 } } }],
+      ["obj2", { properties: { a: 10, b: { c: 20, d: 30 } } }],
     ]);
 
-    const result = haveSameKeys(map);
-    expect(result).toBe(true);
+    const result = findMismatchedPropertiesKeys(map);
+    expect(result).toBe(null);
   });
 
   it("should return false for maps with different nested keys", () => {
     const map = new Map<string, unknown>([
-      ["obj1", { a: 1, b: { c: 2, d: 3 } }],
-      ["obj2", { a: 10, b: { c: 20, e: 30 } }], // Different key "e"
+      ["obj1", { properties: { a: 1, b: { c: 2, d: 3 } } }],
+      ["obj2", { properties: { a: 10, b: { c: 20, e: 30 } } }], // Different key "e"
     ]);
 
-    const result = haveSameKeys(map);
-    expect(result).toBe(false);
+    const result = findMismatchedPropertiesKeys(map);
+    expect(result).toEqual(["b.d", "b.e"]);
   });
 
   it("should return false for maps with different top-level keys", () => {
     const map = new Map<string, unknown>([
-      ["obj1", { a: 1, b: 2 }],
-      ["obj2", { a: 1, c: 2 }], // Different key "c"
+      ["obj1", { properties: { a: 1, b: 2 } }],
+      ["obj2", { properties: { a: 1, c: 2 } }], // Different key "c"
     ]);
 
-    const result = haveSameKeys(map);
-    expect(result).toBe(false);
+    const result = findMismatchedPropertiesKeys(map);
+    expect(result).toEqual(["b", "c"]);
   });
 
   it("should return true for empty maps", () => {
     const map = new Map<string, unknown>();
 
-    const result = haveSameKeys(map);
-    expect(result).toBe(false);
+    const result = findMismatchedPropertiesKeys(map);
+    expect(result).toBe(null);
   });
 
   it("should return true for maps with identical simple keys", () => {
     const map = new Map<string, unknown>([
-      ["obj1", { a: 1, b: 2 }],
-      ["obj2", { a: 3, b: 4 }],
+      ["obj1", { properties: { a: 1, b: 2 } }],
+      ["obj2", { properties: { a: 3, b: 4 } }],
     ]);
 
-    const result = haveSameKeys(map);
-    expect(result).toBe(true);
+    const result = findMismatchedPropertiesKeys(map);
+    expect(result).toBe(null);
   });
 
   it("should return false for maps where one object is empty", () => {
     const map = new Map<string, unknown>([
-      ["obj1", { a: 1, b: 2 }],
-      ["obj2", {}],
+      ["obj1", { properties: { a: 1, b: 2 } }],
+      ["obj2", { properties: {} }],
     ]);
 
-    const result = haveSameKeys(map);
-    expect(result).toBe(false);
+    const result = findMismatchedPropertiesKeys(map);
+    expect(result).toEqual(["a", "b"]);
   });
 });

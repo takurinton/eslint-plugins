@@ -128,7 +128,13 @@ ruleTester.run("i18n/constants", constantsRule, {
         {
           messageId: "missing_key_value",
           data: {
-            lang: "ja",
+            key: "Button.defaultProps",
+          },
+        },
+        {
+          messageId: "missing_key_value",
+          data: {
+            key: "Button.defaultProps.key",
           },
         },
       ],
@@ -168,7 +174,13 @@ ruleTester.run("i18n/constants", constantsRule, {
         {
           messageId: "missing_key_value",
           data: {
-            lang: "ja",
+            key: "Button.defaultProps",
+          },
+        },
+        {
+          messageId: "missing_key_value",
+          data: {
+            key: "Button.defaultProps.key",
           },
         },
       ],
@@ -207,7 +219,7 @@ ruleTester.run("i18n/constants", constantsRule, {
         {
           messageId: "missing_key_value",
           data: {
-            lang: "ja",
+            key: "Input.defaultProps",
           },
         },
       ],
