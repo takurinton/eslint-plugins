@@ -47,7 +47,10 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
     }
 
     const variableNames = context.options[0]?.languageConstantVariables ?? [];
-    const componentsMap = new Map<string, unknown>();
+    const componentsMap = new Map<
+      string,
+      { properties: unknown; loc: { line: number; column: number } }
+    >();
 
     return {
       VariableDeclaration(node) {
@@ -77,7 +80,10 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
 
               if (componentsKeyNode.value.type === "ObjectExpression") {
                 const properties = getProperties(componentsKeyNode.value);
-                componentsMap.set(variableName, properties);
+                componentsMap.set(variableName, {
+                  properties,
+                  loc: node.loc.start,
+                });
               }
             }
             if (
@@ -101,7 +107,10 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
 
               if (componentsKeyNode.value.type === "ObjectExpression") {
                 const properties = getProperties(componentsKeyNode.value);
-                componentsMap.set(variableName, properties);
+                componentsMap.set(variableName, {
+                  properties,
+                  loc: node.loc.start,
+                });
               }
             }
           }
@@ -115,7 +124,11 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
 
         if (!haveSameKeys(componentsMap)) {
           context.report({
-            loc: { line: 1, column: 0 },
+            // 基本的にnullになることはない
+            loc: componentsMap.get(componentsKeys[0])?.loc ?? {
+              line: 1,
+              column: 0,
+            },
             messageId: "missing_key_value",
           });
         }
