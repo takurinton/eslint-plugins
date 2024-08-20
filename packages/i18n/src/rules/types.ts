@@ -9,4 +9,8 @@ export type Messages = {
 
 export type Options = Array<{
   languageConstantVariables?: string[];
+  /**
+   * @memo gitignoreの記法で書くことができるようにしてもいいかも
+   */
+  localeFileName?: string;
 }>;

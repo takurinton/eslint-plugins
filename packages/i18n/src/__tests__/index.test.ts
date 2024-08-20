@@ -72,6 +72,31 @@ ruleTester.run("i18n/constants", constantsRule, {
         },
       ],
     },
+    {
+      filename: "localeFile.ts",
+      code: `
+        export const en = {
+          components: {
+            Button: {
+              defaultProps: {},
+            },
+          },
+        } as const
+
+        export const ja = {
+          components: {
+            Button: {
+              defaultProps: {},
+            },
+          },
+        } as const`,
+      options: [
+        {
+          languageConstantVariables: ["ja", "en"],
+          localeFileName: "localeFile",
+        },
+      ],
+    },
   ],
   invalid: [
     {
@@ -232,6 +257,31 @@ ruleTester.run(
         options: [
           {
             languageConstantVariables: ["ja", "en"],
+          },
+        ],
+      },
+      {
+        filename: "localeFile.ts",
+        code: `
+          export const en = {
+            components: {
+              Button: {
+                defaultProps: {},
+              },
+            },
+          } as const
+
+          export const ja = {
+            components: {
+              Button: {
+                defaultProps: {},
+              },
+            },
+          } as const`,
+        options: [
+          {
+            languageConstantVariables: ["ja", "en"],
+            localeFileName: "localeFile",
           },
         ],
       },

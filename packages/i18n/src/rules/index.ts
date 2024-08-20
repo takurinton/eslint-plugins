@@ -3,6 +3,8 @@ import { MessageId, Options } from "./types";
 import { messages } from "./messages";
 import { getProperties, haveSameKeys } from "./utils";
 
+const LOCALE_FILE_NAME = "i18n/constants/locale";
+
 /**
  * 言語定数に同じkeyが存在しているかをチェックする
  * @memo 今のところ components しかないので、components の下のソースコードが同じかどうかを見る
@@ -25,6 +27,9 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
               type: "string",
             },
           },
+          localeFileName: {
+            type: "string",
+          },
         },
         additionalProperties: false,
       },
@@ -34,8 +39,10 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
   defaultOptions: [],
   create(context) {
     const filename = context.filename ?? context.getFilename() ?? "";
-    //
-    if (filename === "" || !filename.includes(LOCALE_FILE_NAME)) {
+
+    const localeFileName =
+      context.options[0]?.localeFileName ?? LOCALE_FILE_NAME;
+    if (filename === "" || !filename.includes(localeFileName)) {
       return {};
     }
 
@@ -117,9 +124,6 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
   },
 };
 
-// memo: ここは変わるかもしれない
-const LOCALE_FILE_NAME = "i18n/constants/locale";
-
 /**
  * 言語定数を定義するためのルール
  * languageConstantVariables に指定された定数名を定義しているかをチェックする
@@ -146,6 +150,9 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
               type: "string",
             },
           },
+          localeFileName: {
+            type: "string",
+          },
         },
         additionalProperties: false,
       },
@@ -155,7 +162,10 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
   defaultOptions: [],
   create(context) {
     const filename = context.filename ?? context.getFilename() ?? "";
-    if (filename === "" || !filename.includes(LOCALE_FILE_NAME)) {
+    const _localeFilename =
+      context.options[0]?.localeFileName ?? LOCALE_FILE_NAME;
+
+    if (filename === "" || !filename.includes(_localeFilename)) {
       return {};
     }
 
