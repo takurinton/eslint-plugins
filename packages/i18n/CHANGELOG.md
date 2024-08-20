@@ -1,5 +1,11 @@
 # @takurinton/eslint-plugin-i18n
 
+## 0.0.3
+
+### Patch Changes
+
+- f28d5d9: Fix lang constants error message
+
 ## 0.0.2
 
 ### Patch Changes
