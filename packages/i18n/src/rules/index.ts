@@ -173,6 +173,7 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
     const definedVairableNames: {
       variableName: (typeof variableNames)[number];
       hasComponentsKey: boolean;
+      loc: { line: number; column: number };
     }[] = [];
 
     return {
@@ -192,7 +193,11 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
                     property.key.type === "Identifier" &&
                     property.key.name === "components",
                 );
-              definedVairableNames.push({ variableName, hasComponentsKey });
+              definedVairableNames.push({
+                variableName,
+                hasComponentsKey,
+                loc: node.loc.start,
+              });
             }
           }
         }
@@ -211,7 +216,11 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
                       property.key.type === "Identifier" &&
                       property.key.name === "components",
                   );
-                definedVairableNames.push({ variableName, hasComponentsKey });
+                definedVairableNames.push({
+                  variableName,
+                  hasComponentsKey,
+                  loc: node.loc.start,
+                });
               }
             }
           }
@@ -239,10 +248,10 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
         }
 
         for (const definedVairableName of definedVairableNames) {
-          const { variableName, hasComponentsKey } = definedVairableName;
+          const { variableName, hasComponentsKey, loc } = definedVairableName;
           if (!hasComponentsKey) {
             context.report({
-              loc: { line: 1, column: 0 },
+              loc,
               messageId: "missgin_components_key",
               data: {
                 lang: variableName,
