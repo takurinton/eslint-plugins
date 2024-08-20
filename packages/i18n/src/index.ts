@@ -3,7 +3,7 @@ import { constantsRule, defineLanguageConstantVariables } from "./rules";
 export = {
   rules: {
     constants: constantsRule,
-    defineLanguageConstantVariables,
+    "define-language-constant-variables": defineLanguageConstantVariables,
   },
   configs: {
     all: {
