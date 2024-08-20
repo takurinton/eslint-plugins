@@ -30,29 +30,48 @@ export const getProperties = (
   return null;
 };
 
-export const haveSameKeys = (map: Map<string, unknown>): boolean => {
-  const extractKeys = (obj: unknown): string[] => {
-    if (typeof obj !== "object" || obj === null) return [];
-
-    const keys = Object.keys(obj as object);
+export const findMismatchedPropertiesKeys = (
+  map: Map<
+    string,
+    {
+      properties: Record<string, unknown>;
+    }
+  >,
+): string[] | null => {
+  const extractDeepestKeys = (
+    obj: Record<string, unknown>,
+    prefix = "",
+  ): string[] => {
+    const keys = Object.keys(obj);
     return keys.flatMap((key) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const nestedKeys = extractKeys((obj as any)[key]);
-      return nestedKeys.length > 0
-        ? nestedKeys.map((nestedKey) => `${key}.${nestedKey}`)
-        : key;
+      const value = obj[key];
+      const newPrefix = prefix ? `${prefix}.${key}` : key;
+      if (typeof value === "object" && value !== null) {
+        const nestedKeys = extractDeepestKeys(
+          value as Record<string, unknown>,
+          newPrefix,
+        );
+        return nestedKeys.length > 0 ? nestedKeys : [newPrefix];
+      }
+      return [newPrefix];
     });
   };
 
-  const keysArray = Array.from(map.values()).map(extractKeys);
-
-  if (keysArray.length === 0) return false;
-
-  const baseKeys = keysArray[0];
-
-  return keysArray.every(
-    (keys) =>
-      keys.length === baseKeys.length &&
-      keys.every((key) => baseKeys.includes(key)),
+  const keysArray = Array.from(map.values()).map((value) =>
+    extractDeepestKeys(value.properties),
   );
+
+  if (keysArray.length === 0) return null;
+
+  const allKeys = new Set(keysArray.flat());
+  const mismatchedKeys: string[] = [];
+
+  for (const key of allKeys) {
+    const isPresentInAll = keysArray.every((keys) => keys.includes(key));
+    if (!isPresentInAll) {
+      mismatchedKeys.push(key);
+    }
+  }
+
+  return mismatchedKeys.length > 0 ? mismatchedKeys : null;
 };

@@ -1,7 +1,7 @@
 import { TSESLint } from "@typescript-eslint/utils";
 import { MessageId, Options } from "./types";
 import { messages } from "./messages";
-import { getProperties, haveSameKeys } from "./utils";
+import { getProperties, findMismatchedPropertiesKeys } from "./utils";
 
 /**
  * 言語定数に同じkeyが存在しているかをチェックする
@@ -40,7 +40,12 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
     }
 
     const variableNames = context.options[0]?.languageConstantVariables ?? [];
-    const componentsMap = new Map<string, unknown>();
+    const componentsMap = new Map<
+      string,
+      {
+        properties: unknown;
+      }
+    >();
 
     return {
       VariableDeclaration(node) {
@@ -70,7 +75,7 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
 
               if (componentsKeyNode.value.type === "ObjectExpression") {
                 const properties = getProperties(componentsKeyNode.value);
-                componentsMap.set(variableName, properties);
+                componentsMap.set(variableName, { properties });
               }
             }
             if (
@@ -94,7 +99,7 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
 
               if (componentsKeyNode.value.type === "ObjectExpression") {
                 const properties = getProperties(componentsKeyNode.value);
-                componentsMap.set(variableName, properties);
+                componentsMap.set(variableName, { properties });
               }
             }
           }
@@ -106,11 +111,18 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
           return;
         }
 
-        if (!haveSameKeys(componentsMap)) {
-          context.report({
-            loc: { line: 1, column: 0 },
-            messageId: "missing_key_value",
-          });
+        const missmatchedKeys = findMismatchedPropertiesKeys(componentsMap);
+
+        if (missmatchedKeys !== null) {
+          for (const missmatchedKey of missmatchedKeys) {
+            context.report({
+              loc: { line: 1, column: 0 },
+              messageId: "missing_key_value",
+              data: {
+                key: missmatchedKey,
+              },
+            });
+          }
         }
       },
     };
