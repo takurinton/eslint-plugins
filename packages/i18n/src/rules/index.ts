@@ -3,6 +3,8 @@ import { MessageId, Options } from "./types";
 import { messages } from "./messages";
 import { getProperties, findMismatchedPropertiesKeys } from "./utils";
 
+const LOCALE_FILE_NAME = "i18n/constants/locale";
+
 /**
  * 言語定数に同じkeyが存在しているかをチェックする
  * @memo 今のところ components しかないので、components の下のソースコードが同じかどうかを見る
@@ -25,6 +27,9 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
               type: "string",
             },
           },
+          localeFileName: {
+            type: "string",
+          },
         },
         additionalProperties: false,
       },
@@ -34,17 +39,17 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
   defaultOptions: [],
   create(context) {
     const filename = context.filename ?? context.getFilename() ?? "";
-    //
-    if (filename === "" || !filename.includes(LOCALE_FILE_NAME)) {
+
+    const localeFileName =
+      context.options[0]?.localeFileName ?? LOCALE_FILE_NAME;
+    if (filename === "" || !filename.includes(localeFileName)) {
       return {};
     }
 
     const variableNames = context.options[0]?.languageConstantVariables ?? [];
     const componentsMap = new Map<
       string,
-      {
-        properties: unknown;
-      }
+      { properties: unknown; loc: { line: number; column: number } }
     >();
 
     return {
@@ -75,7 +80,10 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
 
               if (componentsKeyNode.value.type === "ObjectExpression") {
                 const properties = getProperties(componentsKeyNode.value);
-                componentsMap.set(variableName, { properties });
+                componentsMap.set(variableName, {
+                  properties,
+                  loc: node.loc.start,
+                });
               }
             }
             if (
@@ -99,7 +107,10 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
 
               if (componentsKeyNode.value.type === "ObjectExpression") {
                 const properties = getProperties(componentsKeyNode.value);
-                componentsMap.set(variableName, { properties });
+                componentsMap.set(variableName, {
+                  properties,
+                  loc: node.loc.start,
+                });
               }
             }
           }
@@ -116,7 +127,10 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
         if (missmatchedKeys !== null) {
           for (const missmatchedKey of missmatchedKeys) {
             context.report({
-              loc: { line: 1, column: 0 },
+              loc: componentsMap.get(componentsKeys[0])?.loc ?? {
+                line: 1,
+                column: 0,
+              },
               messageId: "missing_key_value",
               data: {
                 key: missmatchedKey,
@@ -128,9 +142,6 @@ export const constantsRule: TSESLint.RuleModule<MessageId, Options> = {
     };
   },
 };
-
-// memo: ここは変わるかもしれない
-const LOCALE_FILE_NAME = "i18n/constants/locale";
 
 /**
  * 言語定数を定義するためのルール
@@ -158,6 +169,9 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
               type: "string",
             },
           },
+          localeFileName: {
+            type: "string",
+          },
         },
         additionalProperties: false,
       },
@@ -167,7 +181,10 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
   defaultOptions: [],
   create(context) {
     const filename = context.filename ?? context.getFilename() ?? "";
-    if (filename === "" || !filename.includes(LOCALE_FILE_NAME)) {
+    const _localeFilename =
+      context.options[0]?.localeFileName ?? LOCALE_FILE_NAME;
+
+    if (filename === "" || !filename.includes(_localeFilename)) {
       return {};
     }
 
@@ -175,6 +192,7 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
     const definedVairableNames: {
       variableName: (typeof variableNames)[number];
       hasComponentsKey: boolean;
+      loc: { line: number; column: number };
     }[] = [];
 
     return {
@@ -194,7 +212,11 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
                     property.key.type === "Identifier" &&
                     property.key.name === "components",
                 );
-              definedVairableNames.push({ variableName, hasComponentsKey });
+              definedVairableNames.push({
+                variableName,
+                hasComponentsKey,
+                loc: node.loc.start,
+              });
             }
           }
         }
@@ -213,7 +235,11 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
                       property.key.type === "Identifier" &&
                       property.key.name === "components",
                   );
-                definedVairableNames.push({ variableName, hasComponentsKey });
+                definedVairableNames.push({
+                  variableName,
+                  hasComponentsKey,
+                  loc: node.loc.start,
+                });
               }
             }
           }
@@ -241,10 +267,10 @@ export const defineLanguageConstantVariables: TSESLint.RuleModule<
         }
 
         for (const definedVairableName of definedVairableNames) {
-          const { variableName, hasComponentsKey } = definedVairableName;
+          const { variableName, hasComponentsKey, loc } = definedVairableName;
           if (!hasComponentsKey) {
             context.report({
-              loc: { line: 1, column: 0 },
+              loc,
               messageId: "missgin_components_key",
               data: {
                 lang: variableName,
