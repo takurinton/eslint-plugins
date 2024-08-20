@@ -33,17 +33,16 @@ export const getProperties = (
 export const findMismatchedPropertiesKeys = (
   map: Map<
     string,
-    {
-      properties: Record<string, unknown>;
-    }
+    { properties: unknown; loc: { line: number; column: number } }
   >,
 ): string[] | null => {
-  const extractDeepestKeys = (
-    obj: Record<string, unknown>,
-    prefix = "",
-  ): string[] => {
+  const extractDeepestKeys = (obj: unknown, prefix = ""): string[] => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     const keys = Object.keys(obj);
     return keys.flatMap((key) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       const value = obj[key];
       const newPrefix = prefix ? `${prefix}.${key}` : key;
       if (typeof value === "object" && value !== null) {
