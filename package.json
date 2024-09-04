@@ -24,17 +24,17 @@
   "author": "takurinton",
   "license": "MIT",
   "dependencies": {
-    "@typescript-eslint/utils": "6.20.0"
+    "@typescript-eslint/utils": "7.18.0"
   },
   "devDependencies": {
     "@changesets/changelog-github": "0.4.8",
     "@changesets/cli": "2.26.2",
     "@types/eslint": "8.56.2",
     "@types/node": "20.11.16",
-    "@typescript-eslint/eslint-plugin": "6.20.0",
-    "@typescript-eslint/types": "6.20.0",
-    "@typescript-eslint/parser": "6.20.0",
-    "@typescript-eslint/rule-tester": "6.20.0",
+    "@typescript-eslint/eslint-plugin": "7.18.0",
+    "@typescript-eslint/types": "7.18.0",
+    "@typescript-eslint/parser": "7.18.0",
+    "@typescript-eslint/rule-tester": "7.18.0",
     "eslint": "8.56.0",
     "prettier": "3.0.3",
     "typescript": "5.3.3",
