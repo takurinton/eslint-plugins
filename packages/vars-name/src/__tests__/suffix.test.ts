@@ -31,7 +31,7 @@ ruleTester.run("vars-name/suffix", suffix, {
     // 別名をつけていないときは対象外(arrow function)
     {
       filename: "Component.tsx",
-      code: "function Component({ name }: { name: string }) { return <div>{name}</div>; }",
+      code: "const Component = ({ name }: { name: string }) => { return <div>{name}</div>; }",
     },
     // 別名をつけていないときは対象外(function)
     {
@@ -41,7 +41,7 @@ ruleTester.run("vars-name/suffix", suffix, {
     // 別名とkeyの名前が同じときは対象外(arrow function)
     {
       filename: "Component.tsx",
-      code: "function Component({ name: name }: { name: string }) { return <div>{name}</div>; }",
+      code: "const Component = ({ name: name }: { name: string }) => { return <div>{name}</div>; }",
     },
     // 別名とkeyの名前が同じときは対象外(function)
     {
